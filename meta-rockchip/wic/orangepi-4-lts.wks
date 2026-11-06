@@ -1,0 +1,8 @@
+# GPT chiếm sector 0~33, idbloader ở 32KiB, u-boot.itb ở 8MiB
+bootloader --ptable gpt
+part --source rawcopy --sourceparams="file=idbloader.img" --ondisk mmcblk --no-table --offset 32K
+part --source rawcopy --sourceparams="file=u-boot.itb" --ondisk mmcblk --no-table --offset 8M
+
+part /boot --source bootimg-partition --fstype=ext4 --label boot --part-name boot --offset 16M --fixed-size 128M --ondisk mmcblk --no-fstab-update
+
+part / --source rootfs --fstype=ext4 --label root --part-name rootfs --uuid 0c18644f-826b-40e9-8b9a-ad7f65af00a5 --ondisk mmcblk --no-fstab-update

@@ -1,0 +1,5 @@
+# /etc/default/sensord - cấu hình sensord (đọc bởi sensord.service)
+# Đổi MQTT_HOST thành địa chỉ broker (ví dụ máy PC trong mạng LAN)
+MQTT_HOST=127.0.0.1
+MQTT_PORT=1883
+NODE_ID=opi4lts

@@ -1,0 +1,2 @@
+# Cho phép nhóm sensord đọc /dev/sensor_bridge (mặc định chỉ root, mode 0600)
+SUBSYSTEM=="sensor_bridge", KERNEL=="sensor_bridge", GROUP="sensord", MODE="0660"

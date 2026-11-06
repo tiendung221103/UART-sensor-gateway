@@ -1,0 +1,29 @@
+[Unit]
+Description=UART sensor gateway daemon (sensor_bridge -> MQTT)
+After=systemd-modules-load.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+Environment=MQTT_HOST=127.0.0.1 MQTT_PORT=1883 NODE_ID=opi4lts
+EnvironmentFile=-/etc/default/sensord
+ExecStart=/usr/bin/sensord -d /dev/sensor_bridge -H ${MQTT_HOST} -p ${MQTT_PORT} -n ${NODE_ID}
+Restart=on-failure
+RestartSec=2
+WatchdogSec=10
+User=sensord
+Group=sensord
+
+# Hardening: thử từng dòng trên kernel của bạn, xem STAGE2.md
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

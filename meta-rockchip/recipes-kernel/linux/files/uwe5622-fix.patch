@@ -1,0 +1,79 @@
+From e8b2e4a151147e209e0a0c9f447eab0ba037ff46 Mon Sep 17 00:00:00 2001
+From: invalid_git config <unknown@unknown>
+Date: Thu, 22 Oct 2026 08:41:14 +0000
+Subject: [PATCH] uwe5622: fix out-of-tree build and sched_setscheduler on 6.6
+
+---
+ drivers/net/wireless/uwe5622/Makefile                    | 2 +-
+ drivers/net/wireless/uwe5622/unisocwcn/Makefile          | 8 ++++----
+ drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_rx.c | 3 +--
+ drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_tx.c | 3 +--
+ 4 files changed, 7 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/net/wireless/uwe5622/Makefile b/drivers/net/wireless/uwe5622/Makefile
+index d2210439f3cc..5c3eddc9c5bd 100644
+--- a/drivers/net/wireless/uwe5622/Makefile
++++ b/drivers/net/wireless/uwe5622/Makefile
+@@ -2,7 +2,7 @@ obj-$(CONFIG_RK_WIFI_DEVICE_UWE5622) += unisocwcn/
+ obj-$(CONFIG_WLAN_UWE5622)    += unisocwifi/
+ obj-$(CONFIG_TTY_OVERY_SDIO)  += tty-sdio/
+ 
+-UNISOCWCN_DIR := $(shell cd $(src)/unisocwcn/ && /bin/pwd)
++UNISOCWCN_DIR := $(srctree)/$(src)/unisocwcn
+ UNISOC_BSP_INCLUDE := $(UNISOCWCN_DIR)/include
+ export UNISOC_BSP_INCLUDE
+ 
+diff --git a/drivers/net/wireless/uwe5622/unisocwcn/Makefile b/drivers/net/wireless/uwe5622/unisocwcn/Makefile
+index 939acb5c9274..de06de59bda7 100755
+--- a/drivers/net/wireless/uwe5622/unisocwcn/Makefile
++++ b/drivers/net/wireless/uwe5622/unisocwcn/Makefile
+@@ -129,9 +129,9 @@ ccflags-y += -DCONFIG_WCN_BOOT
+ ccflags-y += -DCONFIG_WCN_UTILS
+ 
+ #### include path ######
+-ccflags-y += -I$(src)/include/
+-ccflags-y += -I$(src)/platform/
+-ccflags-y += -I$(src)/platform/rf/
++ccflags-y += -I$(srctree)/$(src)/include/
++ccflags-y += -I$(srctree)/$(src)/platform/
++ccflags-y += -I$(srctree)/$(src)/platform/rf/
+ 
+ #### add cflag for Customer ######
+ ### ---------- Hisilicon start ---------- ###
+@@ -405,7 +405,7 @@ KDIR ?= $(ANDROID_PRODUCT_OUT)/obj/KERNEL_OBJ
+ ARCH ?= arm
+ CROSS_COMPILE ?= arm-histbv310-linux-
+ 
+-EXTRA_CFLAGS += -I$(src)/include -D__linux__
++EXTRA_CFLAGS += -I$(srctree)/$(src)/include -D__linux__
+ 
+ all: $(all_dependencies)
+ 
+diff --git a/drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_rx.c b/drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_rx.c
+index e968c09b2335..38facc7a1726 100755
+--- a/drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_rx.c
++++ b/drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_rx.c
+@@ -204,8 +204,7 @@ int sdiohal_rx_thread(void *data)
+ 	static long time_total_ns;
+ 	static int times_count;
+ 
+-	param.sched_priority = SDIO_RX_TASK_PRIO;
+-	sched_setscheduler(current, SCHED_FIFO, &param);
++	sched_set_fifo(current);
+ 	sdiohal_rx_adapt_set_dtbs(0);
+ 	sdiohal_rx_adapt_set_pac_num(1);
+ 
+diff --git a/drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_tx.c b/drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_tx.c
+index b3b000e951b8..7b1d7941dc7e 100755
+--- a/drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_tx.c
++++ b/drivers/net/wireless/uwe5622/unisocwcn/sdio/sdiohal_tx.c
+@@ -140,8 +140,7 @@ int sdiohal_tx_thread(void *data)
+ 	static long time_total_ns;
+ 	static int times_count;
+ 
+-	param.sched_priority = SDIO_TX_TASK_PRIO;
+-	sched_setscheduler(current, SCHED_FIFO, &param);
++	sched_set_fifo(current);
+ 
+ 	while (1) {
+ 		/* Wait the semaphore */
