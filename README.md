@@ -41,7 +41,6 @@ A sensor gateway that ingests sensor frames from an ESP32 over UART, buffers the
 ## Directory Structure
 ```
 ├── README.md                          # Project overview and documentation
-├── DECISIONS.md                       # Design decisions and architectural trade-offs
 ├── results.md                         # Benchmark results and empirical measurements
 ├── LICENSE                            # Dual license file (GPL-2.0-only & MIT)
 ├── .gitignore
